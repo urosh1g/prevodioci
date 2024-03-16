@@ -9,18 +9,18 @@ public class SymbolTable {
 	
 	public SymbolTable( )
 	{
-		types = new Type( "unknown", Type.UNKNOWN, null);
-		types = new Type( "char", Type.CHARACTER, types );
-		types = new Type( "integer", Type.INTEGER, types );
+		types = new Type( "string", Type.STRING, null);
+		types = new Type( "decimal", Type.DECIMAL, types );
+		types = new Type( "float", Type.FLOAT, types );
+		types = new Type( "hex", Type.HEX, types );
+		types = new Type( "object", Type.OBJECT, types );
 		variables = null;
 	}
 	
-	public boolean addVar( String name, Type type )
+	public boolean addVar( String name, Type type, int level )
 	{
-		Variable existing = this.getVar( name );
-		if ( existing != null )
-			return false;
 		variables = new Variable( name, type, variables );
+    variables.level = level;
 		return true;
 	}
 	
