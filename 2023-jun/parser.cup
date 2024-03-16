@@ -1,0 +1,31 @@
+import java_cup.runtime.*;
+import java.io.*;
+
+parser code {:
+  public static void main(String[] args) {
+    try {
+      FileReader source = new FileReader(args[0]);
+      Scanner lexer = new Lexer(source);
+      Parser parser = new Parser(lexer);
+      parser.parse();
+    }   
+    catch(Exception ex) {
+      ex.printStackTrace();
+    }
+  }
+:}
+
+terminal ENUM, ID, LBRACK, RBRACK, COMMA, EQUALS, INTCONST, REALCONST, CHARCONST;
+non terminal EnumType, ElementList, Element;
+
+EnumType ::= ENUM ID LBRACK ElementList RBRACK;
+
+ElementList ::= Element
+              | Element COMMA ElementList
+              ;
+
+Element ::= ID
+          | ID EQUALS INTCONST
+          | ID EQUALS REALCONST
+          | ID EQUALS CHARCONST
+          ;
