@@ -13,19 +13,29 @@ parser code {:
       ex.printStackTrace();
     }
   }
+  public void syntax_error(String message) {
+    report_error(message, null);
+  }
+  public void report_error(String message, Object info) {
+    System.err.println(String.format("ERROR: %s\n", message));
+  }
 :}
 
 terminal ENUM, ID, LBRACK, RBRACK, COMMA, EQUALS, INTCONST, REALCONST, CHARCONST;
 non terminal EnumType, ElementList, Element;
 
-EnumType ::= ENUM ID LBRACK ElementList RBRACK;
+EnumType ::= ENUM ID LBRACK ElementList RBRACK
+           | ENUM error LBRACK ElementList RBRACK {: syntax_error("missing enum name"); :}
+           ;
 
 ElementList ::= Element
               | Element COMMA ElementList
+              | Element error ElementList {: syntax_error("missing `,`"); :}
               ;
 
 Element ::= ID
           | ID EQUALS INTCONST
           | ID EQUALS REALCONST
           | ID EQUALS CHARCONST
+          | ID EQUALS error {: syntax_error("missing constant"); :}
           ;
