@@ -1,7 +1,9 @@
 public class Type extends SymbolNode {
-	public static int INTEGER = 0;
-	public static int CHARACTER = 1;
-	public static int UNKNOWN = 2;
+	public static int DECIMAL = 0;
+	public static int STRING = 1;
+	public static int FLOAT = 2;
+	public static int HEX = 3;
+	public static int OBJECT = 4;
 	public int tkind;
 	
 	public Type ( String name, 
