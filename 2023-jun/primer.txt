@@ -1,0 +1,7 @@
+enum Dani {
+  Ponedeljak = 1,
+  Utorak,
+  Sreda,
+  Cetvrtak,
+  Petak = 5
+}
