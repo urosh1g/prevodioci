@@ -1,7 +1,10 @@
 import java_cup.runtime.*;
 import java.io.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 parser code {:
+  public SymbolTable symTable;
   public static void main(String[] args) {
     try {
       FileReader source = new FileReader(args[0]);
@@ -19,23 +22,77 @@ parser code {:
   public void report_error(String message, Object info) {
     System.err.println(String.format("ERROR: %s\n", message));
   }
+
 :}
 
-terminal ENUM, ID, LBRACK, RBRACK, COMMA, EQUALS, INTCONST, REALCONST, CHARCONST;
-non terminal EnumType, ElementList, Element;
+init with {: symTable = new SymbolTable(); :}
 
-EnumType ::= ENUM ID LBRACK ElementList RBRACK
+terminal ENUM, ID, LBRACK, RBRACK, COMMA, EQUALS;
+terminal String INTCONST, REALCONST, CHARCONST;
+non terminal ArrayList<Element> ElementList;
+non terminal EnumType;
+non terminal Element Element;
+
+EnumType ::= ENUM ID LBRACK ElementList: el RBRACK {: 
+              HashMap<String, String> map = new HashMap();
+              for(Element e : el) {
+                String key = (((Constant)(e.value)).value).toString();
+                if(map.get(key) != null) {
+                  report_error(String.format("%s and %s have the same value", e.name, map.get(key)), null);
+                }
+                map.put((((Constant)(e.value)).value).toString(), e.name);
+                System.out.println(String.format("%s = %s", e.name, e.value.toString()));
+              }
+           :}
            | ENUM error LBRACK ElementList RBRACK {: syntax_error("missing enum name"); :}
            ;
 
-ElementList ::= Element
-              | Element COMMA ElementList
+ElementList ::= Element: e {: 
+                RESULT = new ArrayList<Element>();
+                RESULT.add(e);
+              :}
+              | Element: e COMMA ElementList: el {:
+                el.add(e);
+                RESULT = el;
+              :}
               | Element error ElementList {: syntax_error("missing `,`"); :}
               ;
 
-Element ::= ID
-          | ID EQUALS INTCONST
-          | ID EQUALS REALCONST
-          | ID EQUALS CHARCONST
+Element ::= ID: id {: 
+            Element previous = (Element)symTable.getElements();
+            Type type = symTable.getType("int");
+            Object value = new Constant(type, new Integer(1));
+            if(previous != null) {
+              type = previous.type;
+              if( type.name == "int") {
+                value = new Constant(type, ((Integer)(((Constant)previous.value).value)).intValue() + 1);
+              }
+            }
+            RESULT = (Element)symTable.addVar(id.toString(), type, value);
+            if (RESULT == null) {
+              report_error("Duplicate element!", null);
+            }
+          :}
+          | ID: id EQUALS INTCONST: c {:
+            Type ty = symTable.getType("int");
+            RESULT = (Element)symTable.addVar(id.toString(), ty, new Constant(ty, new Integer(c))); ;
+            if (RESULT == null) {
+              report_error("Duplicate element!", null);
+            }
+          :}
+          | ID: id EQUALS REALCONST: c {:
+            Type ty = symTable.getType("int");
+            RESULT = (Element)symTable.addVar(id.toString(), ty, new Constant(ty, new Double(c)));
+            if (RESULT == null) {
+              report_error("Duplicate element!", null);
+            }
+          :}
+          | ID: id EQUALS CHARCONST: c {:
+            Type ty = symTable.getType("int");
+            RESULT = (Element)symTable.addVar(id.toString(), ty, new Constant(ty, new Character( c.charAt(1))));
+            if (RESULT == null) {
+              report_error("Duplicate element!", null);
+            }
+          :}
           | ID EQUALS error {: syntax_error("missing constant"); :}
           ;

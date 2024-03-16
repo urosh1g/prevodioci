@@ -1,7 +1,10 @@
 enum Dani {
+  BrojDana = 7,
   Ponedeljak = 1,
   Utorak,
   Sreda,
   Cetvrtak,
-  Petak = 5
+  Petak,
+  Subota,
+  Nedelja
 }
