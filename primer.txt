@@ -1,0 +1,10 @@
+{
+  id1: 3, 
+  id2: 0x2Ff,
+  id3: id1,
+  id4: {
+    subid1: 1,
+    subid2: 3.14e-6,
+    subid3: "my str constant"
+  }
+}

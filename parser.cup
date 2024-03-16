@@ -1,0 +1,36 @@
+import java_cup.runtime.*;
+import java.io.*;
+
+parser code {:
+  public static void main(String[] args) {
+    try {
+      FileReader source = new FileReader(args[0]);
+      Scanner lexer = new Lexer(source);
+      Parser parser = new Parser(lexer);
+      parser.parse();
+    }
+    catch (Exception ex) {
+      ex.printStackTrace();
+    }
+  }
+:}
+
+terminal LBRACE, RBRACE, COMMA, COLON, ID;
+terminal CONST, DECIMALCONST, HEXCONST, FLOATCONST, STRCONST;
+
+non terminal Object, Members, Pair;
+
+
+Object ::= LBRACE Members RBRACE;
+
+Members ::= Pair               
+          | Members COMMA Pair 
+          ;
+
+Pair ::= ID: id COLON DECIMALCONST: c  {: System.out.println(String.format("found %s : %s", id.toString(), c.toString())); :}
+       | ID: id COLON FLOATCONST: c  {: System.out.println(String.format("found %s : %s", id.toString(), c.toString())); :}
+       | ID: id COLON HEXCONST: c  {: System.out.println(String.format("found %s : %s", id.toString(), c.toString())); :}
+       | ID: id COLON STRCONST: c  {: System.out.println(String.format("found %s : %s", id.toString(), c.toString())); :}
+       | ID: id COLON Object: o {: System.out.println(String.format("found %s: object", id.toString())); :}
+       | ID: id COLON ID: id1     {: System.out.println(String.format("found %s: %s", id.toString(), id1.toString())); :}
+       ;
