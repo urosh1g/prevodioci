@@ -3,6 +3,8 @@ import java.io.*;
 
 parser code {:
 
+  public static SymbolTable symTable;
+  public static int currentLevel = 0;
   public static int errorCount = 0;
 
   public static void main(String[] args) {
@@ -29,13 +31,18 @@ parser code {:
 
 :}
 
-terminal LBRACE, RBRACE, COMMA, COLON, ID;
-terminal CONST, DECIMALCONST, HEXCONST, FLOATCONST, STRCONST;
+init with {:
+  symTable = new SymbolTable();
+:}
+
+terminal LBRACE, RBRACE, COMMA, COLON;
+terminal ID;
+terminal DECIMALCONST, HEXCONST, FLOATCONST, STRCONST;
 
 non terminal Object, Members, Pair;
 
 
-Object ::= LBRACE Members RBRACE
+Object ::= LBRACE {: currentLevel++; :} Members RBRACE {: currentLevel--; :}
          | error RBRACE {: syntax_error("missing {"); :}
          ;
 
@@ -44,11 +51,69 @@ Members ::= Pair
           | error COMMA Pair {: syntax_error("missing `,` between members"); :}
           ;
 
-Pair ::= ID: id COLON DECIMALCONST: c  {: System.out.println(String.format("found %s : %s", id.toString(), c.toString())); :}
-       | ID: id COLON FLOATCONST: c  {: System.out.println(String.format("found %s : %s", id.toString(), c.toString())); :}
-       | ID: id COLON HEXCONST: c  {: System.out.println(String.format("found %s : %s", id.toString(), c.toString())); :}
-       | ID: id COLON STRCONST: c  {: System.out.println(String.format("found %s : %s", id.toString(), c.toString())); :}
-       | ID: id COLON Object: o {: System.out.println(String.format("found %s: object", id.toString())); :}
-       | ID: id COLON ID: id1     {: System.out.println(String.format("found %s: %s", id.toString(), id1.toString())); :}
+Pair ::= ID: id COLON Object {:
+            Variable var = symTable.getVar(id.toString());
+            if (var != null && currentLevel == var.level) {
+              syntax_error(String.format("Variable %s already exists in this scope %d", var.name, var.level));
+              RESULT = null;
+              return null;
+            }
+            Type ty = symTable.getType("object");
+            symTable.addVar(id.toString(), ty, currentLevel);
+          :}
+       | ID: id COLON DECIMALCONST: c
+          {:
+            Variable var = symTable.getVar(id.toString());
+            if (var != null && currentLevel == var.level) {
+              syntax_error(String.format("Variable %s already exists in this scope", var.name, var.level));
+              RESULT = null;
+              return null;
+            }
+            Type ty = symTable.getType("decimal");
+            symTable.addVar(id.toString(), ty, currentLevel);
+          :}
+       | ID: id COLON FLOATCONST: c  {:
+            Variable var = symTable.getVar(id.toString());
+            if (var != null && currentLevel == var.level) {
+              syntax_error(String.format("Variable %s already exists in this scope", var.name, var.level));
+              RESULT = null;
+              return null;
+            }
+            Type ty = symTable.getType("float");
+            symTable.addVar(id.toString(), ty, currentLevel);
+          :}
+       | ID: id COLON HEXCONST  {:
+            Variable var = symTable.getVar(id.toString());
+            if (var != null && currentLevel == var.level) {
+              syntax_error(String.format("Variable %s already exists in this scope", var.name, var.level));
+              RESULT = null;
+              return null;
+            }
+            Type ty = symTable.getType("hex");
+            symTable.addVar(id.toString(), ty, currentLevel);
+          :}
+       | ID: id COLON STRCONST  {:
+            Variable var = symTable.getVar(id.toString());
+            if (var != null && currentLevel == var.level) {
+              syntax_error(String.format("Variable %s already exists in this scope", var.name, var.level));
+              RESULT = null;
+              return null;
+            }
+            Type ty = symTable.getType("string");
+            symTable.addVar(id.toString(), ty, currentLevel);
+          :}
+       | ID: id COLON ID: id1     {:
+            Variable var = symTable.getVar(id.toString());
+            if (var != null && currentLevel == var.level) {
+              syntax_error(String.format("Variable %s already exists in this scope", var.name));
+            }
+            Variable rhs = symTable.getVar(id1.toString());
+            if(rhs == null || rhs.level != currentLevel) {
+                syntax_error(String.format("Variable %s doesn't exist in this scope", id1.toString()));
+                RESULT = null;
+                return null;
+            }
+            symTable.addVar(id.toString(), rhs.type, currentLevel);
+          :}
        | error COLON DECIMALCONST     {: syntax_error("missing ID before :"); :}
        ;
