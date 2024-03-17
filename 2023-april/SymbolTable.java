@@ -10,17 +10,15 @@ public class SymbolTable {
 	public SymbolTable( )
 	{
 		types = new Type( "string", Type.STRING, null);
-		types = new Type( "decimal", Type.DECIMAL, types );
 		types = new Type( "float", Type.FLOAT, types );
 		types = new Type( "hex", Type.HEX, types );
-		types = new Type( "object", Type.OBJECT, types );
+		types = new Type( "int", Type.INT, types );
 		variables = null;
 	}
 	
 	public boolean addVar( String name, Type type, int level )
 	{
 		variables = new Variable( name, type, variables );
-    variables.level = level;
 		return true;
 	}
 	

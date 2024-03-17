@@ -1,7 +1,9 @@
 import java_cup.runtime.*;
 import java.io.*;
+import java.util.ArrayList;
 
 parser code {:
+  public SymbolTable symTable;
   public static void main(String[] args) {
     try {
       FileReader source = new FileReader(args[0]);
@@ -21,10 +23,13 @@ parser code {:
   }
 :}
 
+init with {: symTable = new SymbolTable(); :}
+
 terminal ID, LBRACK, RBRACK, COMMA, COLON;
 terminal STRCONST, INTCONST, HEXCONST, FLOATCONST;
 
-non terminal SliceOperation, Indices, List, Range;
+non terminal SliceOperation, Indices, Range;
+non terminal ArrayList<Constant> List;
 
 SliceOperation ::= ID LBRACK Indices RBRACK {: System.out.println("found slice"); :}
                   | error LBRACK Indices RBRACK {: syntax_error("Missing slice identifier"); :}
@@ -35,11 +40,43 @@ Indices        ::=  List
                   | Range
                   ;
 
-List           ::=  List COMMA STRCONST
+List           ::=  List: list COMMA STRCONST: c {: 
+                    Type type = symTable.getType("string");
+                    Type listType = list.get(0).type;
+                    if(type != listType) {
+                      RESULT = null;
+                      report_error("Elements of list need to be the same type!", null);
+                      return null;
+                    }
+                    list.add(new Constant(type, c.toString()));
+                    RESULT = list;
+                  :}
                   | List error INTCONST {: syntax_error("Missing comma between list indices"); :}
-                  | List COMMA INTCONST
-                  | STRCONST
-                  | INTCONST
+                  | List: list COMMA INTCONST: c {: 
+                    Type type = symTable.getType("int");
+                    Type listType = list.get(0).type;
+                    if(type != listType) {
+                      RESULT = null;
+                      report_error("Elements of list need to be the same type!", null);
+                      return null;
+                    }
+                    list.add(new Constant(type, c.toString()));
+                    RESULT = list;
+                  :}
+                  | STRCONST: c {: 
+                    Type type = symTable.getType("string");
+                    Constant constant = new Constant(type, c.toString());
+                    ArrayList<Constant> list = new ArrayList();
+                    list.add(constant);
+                    RESULT = list;
+                  :}
+                  | INTCONST: c {: 
+                    Type type = symTable.getType("int");
+                    Constant constant = new Constant(type, c.toString());
+                    ArrayList<Constant> list = new ArrayList();
+                    list.add(constant);
+                    RESULT = list;
+                  :}
                   |
                   ;
 

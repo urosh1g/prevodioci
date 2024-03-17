@@ -8,7 +8,6 @@ public class SymbolNode {
 	public int kind;
 	public Type type;
 	public SymbolNode next;
-  public int level = 1;
 	
 	public SymbolNode( String symbolName, 
 			int symbolKind, 
