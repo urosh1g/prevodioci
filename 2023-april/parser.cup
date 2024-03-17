@@ -38,12 +38,8 @@ Indices        ::=  List
 List           ::=  List COMMA STRCONST
                   | List error INTCONST {: syntax_error("Missing comma between list indices"); :}
                   | List COMMA INTCONST
-                  | List COMMA HEXCONST
-                  | List COMMA FLOATCONST
                   | STRCONST
                   | INTCONST
-                  | HEXCONST
-                  | FLOATCONST
                   |
                   ;
 
