@@ -13,6 +13,12 @@ parser code {:
         ex.printStackTrace();
     }
   }
+  public void syntax_error(String message) {
+    report_error(message, null);
+  }
+  public void report_error(String message, Object info) {
+    System.err.println(String.format("ERROR: %s\n", message));
+  }
 :}
 
 terminal ID, LBRACK, RBRACK, COMMA, COLON;
@@ -20,13 +26,17 @@ terminal STRCONST, INTCONST, HEXCONST, FLOATCONST;
 
 non terminal SliceOperation, Indices, List, Range;
 
-SliceOperation ::= ID LBRACK Indices RBRACK {: System.out.println("found slice"); :};
+SliceOperation ::= ID LBRACK Indices RBRACK {: System.out.println("found slice"); :}
+                  | error LBRACK Indices RBRACK {: syntax_error("Missing slice identifier"); :}
+                  | ID error Indices RBRACK {: syntax_error("Missing open bracket"); :}
+                  ;
 
 Indices        ::=  List
                   | Range
                   ;
 
 List           ::=  List COMMA STRCONST
+                  | List error INTCONST {: syntax_error("Missing comma between list indices"); :}
                   | List COMMA INTCONST
                   | List COMMA HEXCONST
                   | List COMMA FLOATCONST
@@ -39,4 +49,5 @@ List           ::=  List COMMA STRCONST
 
 Range          ::=  COLON INTCONST COLON INTCONST
                   | COLON INTCONST COLON
+                  | COLON INTCONST error {: syntax_error("Missing COLON inside range"); :}
                   ;
