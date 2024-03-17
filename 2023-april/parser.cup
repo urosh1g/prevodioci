@@ -31,7 +31,7 @@ terminal STRCONST, INTCONST, HEXCONST, FLOATCONST;
 non terminal SliceOperation, Indices, Range;
 non terminal ArrayList<Constant> List;
 
-SliceOperation ::= ID LBRACK Indices RBRACK {: System.out.println("found slice"); :}
+SliceOperation ::= ID LBRACK Indices RBRACK
                   | error LBRACK Indices RBRACK {: syntax_error("Missing slice identifier"); :}
                   | ID error Indices RBRACK {: syntax_error("Missing open bracket"); :}
                   ;
@@ -92,7 +92,13 @@ List           ::=  List: list COMMA STRCONST: c {:
                   |
                   ;
 
-Range          ::=  COLON INTCONST COLON INTCONST
+Range          ::=  COLON INTCONST: c1 COLON INTCONST: c2 {: 
+                    Integer first = new Integer(c1.toString());
+                    Integer second = new Integer(c2.toString());
+                    if(first.intValue() > second.intValue()) {
+                      report_error("Invalid range!", null);
+                    }
+                  :}
                   | COLON INTCONST COLON
                   | COLON INTCONST error {: syntax_error("Missing COLON inside range"); :}
                   ;
