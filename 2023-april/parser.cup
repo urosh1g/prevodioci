@@ -43,10 +43,16 @@ Indices        ::=  List
 List           ::=  List: list COMMA STRCONST: c {: 
                     Type type = symTable.getType("string");
                     Type listType = list.get(0).type;
+                    RESULT = null;
                     if(type != listType) {
-                      RESULT = null;
                       report_error("Elements of list need to be the same type!", null);
                       return null;
+                    }
+                    for(Constant constant: list) {
+                      if(constant.value.toString().equals(c.toString())) {
+                        report_error("Elements of list need to be unique!", null);
+                        return null;
+                      }
                     }
                     list.add(new Constant(type, c.toString()));
                     RESULT = list;
@@ -59,6 +65,12 @@ List           ::=  List: list COMMA STRCONST: c {:
                       RESULT = null;
                       report_error("Elements of list need to be the same type!", null);
                       return null;
+                    }
+                    for(Constant constant: list) {
+                      if(constant.value.toString().equals(c.toString())) {
+                        report_error("Elements of list need to be unique!", null);
+                        return null;
+                      }
                     }
                     list.add(new Constant(type, c.toString()));
                     RESULT = list;

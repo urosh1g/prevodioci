@@ -3,7 +3,6 @@ import java_cup.runtime.*;
 %%
 
 %class Lexer
-%debug
 %cup
 
 %%
