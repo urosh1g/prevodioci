@@ -23,3 +23,29 @@ public class ConditionalExpression extends Expression {
 
 }
 
+//2. Definicija medjukoda
+/*
+ * ConditionalExpression:
+ * IMC<testExpr>
+ * Load_Mem R1, RESULT<textExpr>
+ * Load_Const R2, 0
+ * Compare_Less R1, R2
+ * JumpIfNotZero firstExpr
+ * Compare_Equal R1, R2
+ * JumpIfNotZero secondExpr
+ * Jump thirdExpr
+ * firstExpr:
+ * IMC<firstExpr>
+ * Load R3, RESULT<firstExpr>
+ * Jump KRAJ
+ * secondExpr:
+ * IMC<secondExpr>
+ * Load R3, RESULT<secondExpr>
+ * Jump KRAJ
+ * thirdExpr:
+ * IMC<thirdExpr>
+ * Load R3, RESULT<thirdExpr>
+ * KRAJ:
+ * Store R3, result
+ * */
+
