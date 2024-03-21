@@ -61,6 +61,7 @@ render_scene:
   push eax
   call render_scene
   ; loaded = loaded + render_scene(m->next)
+  pop eax ; clean call stack
   mov eax, [ebp-0x2]
   add eax, ecx
   mov [ebp-0x2], eax
