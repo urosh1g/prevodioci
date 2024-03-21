@@ -22,3 +22,21 @@ public class Alternative extends Statement {
     @Override
     public void translate(BufferedWriter out) throws IOException { ... }
 }
+
+//2. Definicija medjukoda
+/*
+ * ALTERNATIVE:
+ * IMC<expr>
+ * Load R1, RESULT<expr>
+ * JumpIfZero R1, KRAJ
+ * IMC<stmt>
+ *
+ * */
+
+//3. Impl za Alternative
+public void translate(BufferedWriter out) throws IOException {
+    expr.translate(out);
+    expr.genLoad("R1", out);
+    out.write("JumpIfZero R1, KRAJ");
+    stmt.translate(out);
+}
